@@ -16,56 +16,98 @@ onMounted(async () => {
 
 const loadModel = async () => {
   const loader = new GLTFLoader()
-  loader.load('src/assets/model/slothSword/gltf/SlothSword.gltf', (gltf: GLTF) => {
-    console.log('模型加载完成--->', gltf)
-    const model = gltf.scene
+  const modelCount = 3;
+  const models: THREE.Group[] = [];
 
-    // 计算模型的包围盒
-    const box = new THREE.Box3().setFromObject(model)
-    const size = box.getSize(new THREE.Vector3())
-    const center = box.getCenter(new THREE.Vector3())
+  const loadSingleModel = () => {
+    return new Promise<THREE.Group>((resolve, reject) => {
+      loader.load(
+        'src/assets/model/slothSword/gltf/SlothSword.gltf',
+        (gltf: GLTF) => {
+          const model = gltf.scene.clone(); // 克隆模型
+          resolve(model);
+        },
+        (p) => {
+          console.log('模型加载进度--->', p);
+        },
+        (e) => {
+          console.log('模型加载错误--->', e);
+          reject(e);
+        }
+      );
+    });
+  };
 
-    // 计算相机视锥体在模型位置的高度
-    const fov = _scene!.camera.fov * Math.PI / 180
-    const distance = _scene!.camera.position.z
-    const height = 2 * Math.tan(fov / 2) * distance
+  try {
+    for (let i = 0; i < modelCount; i++) {
+      const model = await loadSingleModel();
+      models.push(model);
+    }
 
-    // 计算缩放比例，让模型高度始终以视口高度展示
-    const scale = height / size.y
-    model.scale.setScalar(scale)
+    // 处理所有加载的模型
+    let totalWidth = 0;
+    const modelInfos = models.map(model => {
+      // 计算模型的包围盒
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
 
-    // 重新计算缩放后的中心点
-    const scaledCenter = center.multiplyScalar(scale)
-    model.position.sub(scaledCenter)
+      // 计算相机视锥体在模型位置的高度
+      const fov = _scene!.camera.fov * Math.PI / 180;
+      const distance = _scene!.camera.position.z;
+      const height = 2 * Math.tan(fov / 2) * distance;
 
-    // 遍历所有子模型
-    model.traverse((child) => {
-      // 处理网格材质，添加纹理
-      if (child instanceof THREE.Mesh && child.material instanceof THREE.Material) {
-        const textureLoader = new THREE.TextureLoader()
-        const colorTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_BaseColor.png')
-        const roughnessTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_metal-Material_Roughness.png')
-        const normalTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_Normal_norm.png')
+      // 计算缩放比例
+      const scale = height / size.y;
+      model.scale.setScalar(scale);
 
-        // 设置颜色纹理的颜色空间
-        colorTexture.colorSpace = THREE.SRGBColorSpace
+      // 计算缩放后的中心点
+      const scaledCenter = center.multiplyScalar(scale)
+      model.position.sub(scaledCenter)
 
-        // 创建新的标准材质并应用所有纹理
-        child.material = new THREE.MeshStandardMaterial({
-          map: colorTexture,           // 颜色纹理
-          roughnessMap: roughnessTexture, // 粗糙度纹理
-          normalMap: normalTexture,    // 法线纹理
-        })
-      }
-    })
+      // 更新包围盒和尺寸（因为已经缩放）
+      const scaledBox = new THREE.Box3().setFromObject(model);
+      const scaledSize = scaledBox.getSize(new THREE.Vector3());
 
-    // 将模型添加到场景中
-    _scene?.scene.add(model)
-  }, (p) => {
-    console.log('模型加载进度--->', p)
-  }, (e) => {
-    console.log('模型加载错误--->', e)
-  })
+      totalWidth += scaledSize.x;
+      return { model, scaledSize, scale };
+    });
+
+    // 计算起始位置（使模型组居中）
+    let currentX = -totalWidth / 2;
+    const spacing = 0.5; // 模型之间的间距
+
+    // 设置每个模型的位置
+    modelInfos.forEach(({ model, scaledSize }) => {
+      // 设置模型的X位置，使其并排放置
+      model.position.x = currentX + scaledSize.x / 2;
+      currentX += scaledSize.x + spacing;
+
+      // 处理模型材质
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material instanceof THREE.Material) {
+          const textureLoader = new THREE.TextureLoader();
+          const colorTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_BaseColor.png');
+          const roughnessTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_metal-Material_Roughness.png');
+          const normalTexture = textureLoader.load('src/assets/model/slothSword/gltf/Material_Normal_norm.png');
+
+          colorTexture.colorSpace = THREE.SRGBColorSpace;
+
+          child.material = new THREE.MeshStandardMaterial({
+            map: colorTexture,
+            roughnessMap: roughnessTexture,
+            normalMap: normalTexture,
+          });
+        }
+      });
+
+      // 将模型添加到场景中
+      _scene?.scene.add(model);
+    });
+
+  } catch (error) {
+    console.error('加载模型时出错:', error);
+  }
 }
 onUnmounted(() => {
   _scene?.destroy()
