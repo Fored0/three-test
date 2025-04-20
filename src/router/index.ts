@@ -6,6 +6,7 @@ import GestureOperation from '@/views/gesture/gesture-operation.vue'
 import PlayAnimation from '@/views/animation/play-animation.vue'
 import MeterialModify from '@/views/material/meterial-modify.vue'
 import GyroscopeControll from '@/views/gyroscope/gyroscope-controll.vue'
+import GestureOperationSelect from '@/views/select/gesture-operation-select.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,7 +40,15 @@ const router = createRouter({
       name: 'gesture-operation',
       component: GestureOperation,
       meta: {
-        title: '手势操作',
+        title: '手势操作-旋转',
+      },
+    },
+    {
+      path: '/gesture-operation-select',
+      name: 'gesture-operation-select',
+      component: GestureOperationSelect,
+      meta: {
+        title: '手势操作-选中拖动',
       },
     },
     {

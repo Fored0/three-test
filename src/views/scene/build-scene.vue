@@ -23,8 +23,8 @@ const addPlane = () => {
   const plane = new THREE.Mesh(planeGeometry, planeMaterial)
   plane.rotation.x = Math.PI / 2
   plane.receiveShadow = true
-  _scene?.scene.add(plane)
-  _scene?.animate()
+  _scene.scene.add(plane)
+  _scene.animate()
 }
 
 const addCube = () => {
@@ -33,7 +33,7 @@ const addCube = () => {
   const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
   cube.position.set(0, 0.5, 0)
   cube.castShadow = true
-  _scene?.scene.add(cube)
+  _scene.scene.add(cube)
 }
 
 const addSphere = () => {
@@ -42,16 +42,16 @@ const addSphere = () => {
   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
   sphere.position.set(2, 0.5, 0)
   sphere.castShadow = true
-  _scene?.scene.add(sphere)
+  _scene.scene.add(sphere)
 }
 
 const addAxisHelper = () => {
   const axisHelper = new THREE.AxesHelper(5)
-  _scene?.scene.add(axisHelper)
+  _scene.scene.add(axisHelper)
 }
 
 onUnmounted(() => {
-  _scene?.destroy()
+  _scene.destroy()
 })
 </script>
 

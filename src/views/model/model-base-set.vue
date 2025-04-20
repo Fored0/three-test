@@ -11,7 +11,7 @@ onMounted(async () => {
   if (!modelCanvas.value) return
   _scene = new Scene(modelCanvas.value)
   await loadModel()
-  _scene?.animate()
+  _scene.animate()
 })
 
 const loadModel = async () => {
@@ -102,7 +102,7 @@ const loadModel = async () => {
       });
 
       // 将模型添加到场景中
-      _scene?.scene.add(model);
+      _scene.scene.add(model);
     });
 
   } catch (error) {
@@ -110,7 +110,7 @@ const loadModel = async () => {
   }
 }
 onUnmounted(() => {
-  _scene?.destroy()
+  _scene.destroy()
 })
 </script>
 
