@@ -32,8 +32,10 @@ export default class Scene {
    */
   public directionalLight: THREE.DirectionalLight
   /**
-   *
+   * 自定义控制器清理函数
    */
+  public customControlsCleanup: (() => void) | undefined
+
   constructor(canvas: HTMLCanvasElement) {
     // 创建场景
     this.scene = new THREE.Scene()

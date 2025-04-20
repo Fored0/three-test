@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import Scene from '@/utils/scene'
 
 const SceneCanvas = ref<HTMLCanvasElement>()
-let _scene: Scene | null = null
+let _scene: Scene
 
 onMounted(() => {
   if (!SceneCanvas.value) return

@@ -5,7 +5,7 @@ import Scene from '@/utils/scene'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/Addons.js'
 
 const modelCanvas = ref<HTMLCanvasElement>()
-let _scene: Scene | null = null
+let _scene: Scene
 
 onMounted(async () => {
   if (!modelCanvas.value) return
