@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import Scene from '@/utils/scene';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
@@ -134,6 +134,10 @@ const setupInteraction = () => {
   });
   gestureCanvas.value?.addEventListener('touchend', endDrag);
 };
+
+onUnmounted(() => {
+  _scene.destroy()
+})
 </script>
 
 <template>

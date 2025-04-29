@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import Scene from '@/utils/scene';
 import { SelectButton, type SelectButtonChangeEvent } from 'primevue';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
@@ -99,7 +99,9 @@ const useRotate = () => {
   };
 };
 
-
+onUnmounted(() => {
+  _scene.destroy()
+})
 </script>
 
 <template>
