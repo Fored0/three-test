@@ -53,7 +53,7 @@ const loadModel = async () => {
       const center = box.getCenter(new THREE.Vector3());
 
       // 计算相机视锥体在模型位置的高度
-      const fov = _scene!.camera.fov * Math.PI / 180;
+      const fov = _scene.camera.fov * Math.PI / 180;
       const distance = _scene!.camera.position.z;
       const height = 2 * Math.tan(fov / 2) * distance;
 

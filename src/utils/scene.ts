@@ -35,6 +35,10 @@ export default class Scene {
    * 自定义控制器清理函数
    */
   public customControlsCleanup: (() => void) | undefined
+  /**
+   * 时钟
+   */
+  public clock: THREE.Clock
 
   constructor(canvas: HTMLCanvasElement) {
     // 创建场景
@@ -77,6 +81,9 @@ export default class Scene {
     this.datUI = new dat.GUI()
     this.addAmbientLightDebugUI()
     this.addDirectionalLightDebugUI()
+
+    // 初始化时钟
+    this.clock = new THREE.Clock()
 
     // 监听窗口 resize 事件
     window.addEventListener('resize', this.handleWindowResize.bind(this))
@@ -141,12 +148,20 @@ export default class Scene {
   /**
    * 动画循环
    */
-  public animate() {
-    requestAnimationFrame(() => this.animate())
-    // 更新控制器
-    this.controls.update()
-    // 确保每帧都渲染
-    this.renderer.render(this.scene, this.camera)
+  // 在 src/utils/scene.ts 中的 Scene 类
+  public animate(callback?: () => void) {
+    const animate = () => {
+      requestAnimationFrame(animate)
+      // 更新控制器
+      this.controls.update()
+      // 执行回调
+      if (callback) {
+        callback()
+      }
+      // 确保每帧都渲染
+      this.renderer.render(this.scene, this.camera)
+    }
+    animate()
   }
 
   /**
@@ -156,6 +171,72 @@ export default class Scene {
     return new THREE.Box3().setFromObject(model)
   }
 
+  /**
+   * 添加相机调试UI
+   */
+  public addCameraDebugUI() {
+    const cameraFolder = this.datUI.addFolder('Camera')
+
+    // 相机位置控制
+    const positionFolder = cameraFolder.addFolder('Position')
+    positionFolder.add(this.camera.position, 'x', -20, 20, 0.1).name('Position X')
+    positionFolder.add(this.camera.position, 'y', -20, 20, 0.1).name('Position Y')
+    positionFolder.add(this.camera.position, 'z', -20, 20, 0.1).name('Position Z')
+
+    // 相机旋转控制
+    const rotationFolder = cameraFolder.addFolder('Rotation')
+    rotationFolder.add(this.camera.rotation, 'x', -Math.PI, Math.PI, 0.01).name('Rotation X')
+    rotationFolder.add(this.camera.rotation, 'y', -Math.PI, Math.PI, 0.01).name('Rotation Y')
+    rotationFolder.add(this.camera.rotation, 'z', -Math.PI, Math.PI, 0.01).name('Rotation Z')
+
+    // 相机视角控制
+    const fovFolder = cameraFolder.addFolder('Field of View')
+    fovFolder.add(this.camera, 'fov', 20, 120, 1)
+      .name('FOV')
+      .onChange(() => {
+        this.camera.updateProjectionMatrix()
+      })
+
+    // 相机近平面和远平面控制
+    const clippingFolder = cameraFolder.addFolder('Clipping Planes')
+    clippingFolder.add(this.camera, 'near', 0.1, 50, 0.1)
+      .name('Near')
+      .onChange(() => {
+        this.camera.updateProjectionMatrix()
+      })
+    clippingFolder.add(this.camera, 'far', 100, 5000, 100)
+      .name('Far')
+      .onChange(() => {
+        this.camera.updateProjectionMatrix()
+      })
+
+    // 添加一个按钮来重置相机位置
+    const resetCamera = {
+      reset: () => {
+        this.camera.position.set(2, 2, 5)
+        this.camera.lookAt(0, 1, 0)
+        this.camera.fov = 45
+        this.camera.near = 0.1
+        this.camera.far = 2000
+        this.camera.updateProjectionMatrix()
+        // 更新控制器
+        this.controls.target.set(0, 1, 0)
+        this.controls.update()
+      }
+    }
+    cameraFolder.add(resetCamera, 'reset').name('Reset Camera')
+
+    // 添加控制器目标点调试
+    const targetFolder = cameraFolder.addFolder('Orbit Controls Target')
+    targetFolder.add(this.controls.target, 'x', -10, 10, 0.1).name('Target X')
+    targetFolder.add(this.controls.target, 'y', -10, 10, 0.1).name('Target Y')
+    targetFolder.add(this.controls.target, 'z', -10, 10, 0.1).name('Target Z')
+    targetFolder.add({
+      updateControls: () => {
+        this.controls.update()
+      }
+    }, 'updateControls').name('Update Controls')
+  }
 
   /**
    * 销毁场景
