@@ -7,6 +7,7 @@ import TWEEN from '@tweenjs/tween.js';
 const materialCanvas = ref<HTMLCanvasElement>();
 let _scene: Scene;
 let cube: THREE.Mesh;
+const tweenGroup = new TWEEN.Group();
 
 onMounted(() => {
   if (!materialCanvas.value) return;
@@ -23,9 +24,8 @@ onMounted(() => {
   startAnimation();
 
   // 动画循环 - 使用 TWEEN.Group
-  const tweenGroup = new TWEEN.Group();
   _scene.animate(() => {
-    tweenGroup.update();
+    tweenGroup.update()
   });
 });
 
@@ -44,9 +44,6 @@ const createCube = () => {
 };
 
 const startAnimation = () => {
-  // 创建一个TWEEN组
-  const tweenGroup = new TWEEN.Group();
-
   // 1. 平移动画（左 -> 右）
   const moveRight = new TWEEN.Tween(cube.position, tweenGroup)
     .to({ x: 5 }, 2000)

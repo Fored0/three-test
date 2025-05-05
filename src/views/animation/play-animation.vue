@@ -14,13 +14,14 @@ let idleAction: THREE.AnimationAction;
 let walkAction: THREE.AnimationAction;
 let runAction: THREE.AnimationAction;
 let model: THREE.Group;
+const tweenGroup = new TWEEN.Group();
 
 onMounted(async () => {
   if (!animationRef.value) return
   _scene = new Scene(animationRef.value)
 
   // 调整相机初始位置和朝向
-  _scene.camera.position.set(2, 2, 5) // 设置相机位置
+  _scene.camera.position.set(2, 2, -5) // 设置相机位置
   _scene.camera.lookAt(0, 1, 0) // 让相机看向模型中心偏上的位置
 
   // 添加相机调试UI
@@ -29,8 +30,7 @@ onMounted(async () => {
   await loadModel()
 
   _scene.animate(() => {
-
-    TWEEN.update()
+    tweenGroup.update()
     mixer.update(_scene.clock.getDelta())
   })
 })
@@ -85,11 +85,11 @@ const startEntranceAnimation = () => {
   model.scale.set(1, 1, 1)
   model.rotation.y = 0
 
-  const scaleUp = new TWEEN.Tween(model.scale)
+  const scaleUp = new TWEEN.Tween(model.scale, tweenGroup)
     .to({ x: 1, y: 1, z: 1 }, 1500)
     .easing(TWEEN.Easing.Cubic.Out)
 
-  const rotate = new TWEEN.Tween(model.rotation)
+  const rotate = new TWEEN.Tween(model.rotation, tweenGroup)
     .to({ y: Math.PI * 2 }, 1500)
     .easing(TWEEN.Easing.Cubic.Out)
 
