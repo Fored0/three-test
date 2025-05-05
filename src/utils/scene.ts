@@ -139,10 +139,21 @@ export default class Scene {
     const texture = new THREE.TextureLoader().load("./src/assets/model/skybox/skybox.jpg");
     const material = new THREE.MeshBasicMaterial({
       map: texture,
-      side: THREE.BackSide, //默认前面可见，设置为背面可见即可
+      side: THREE.DoubleSide, //默认前面可见，设置为背面可见即可
     });
     const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = 'custom_sky_box'
     this.scene.add(mesh);
+  }
+
+  /**
+   * 移除自定义的假天空盒
+   */
+  public removeCustomSkyBox() {
+    const customSkyBox = this.scene.getObjectByName('custom_sky_box')
+    if (customSkyBox) {
+      this.scene.remove(customSkyBox)
+    }
   }
 
   /**

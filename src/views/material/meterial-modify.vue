@@ -3,19 +3,55 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import Scene from '@/utils/scene';
 import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
+import { RGBELoader } from 'three/examples/jsm/Addons.js';
 
 const materialCanvas = ref<HTMLCanvasElement>();
 let _scene: Scene;
 let cube: THREE.Mesh;
 const tweenGroup = new TWEEN.Group();
 
-onMounted(() => {
+// 添加产品配置数据
+const products = ref([
+  { id: 1, name: '款式1', color: '#00ff00' },
+  { id: 2, name: '款式2', color: '#ff0000' },
+  { id: 3, name: '款式3', color: '#0000ff' },
+]);
+
+const currentProduct = ref(products.value[0]);
+
+// 更新材质颜色的方法
+const updateMaterialColor = (color: string) => {
+  if (cube && cube.material instanceof THREE.MeshStandardMaterial) {
+    cube.material.color.setStyle(color);
+  }
+};
+
+onMounted(async () => {
   if (!materialCanvas.value) return;
   _scene = new Scene(materialCanvas.value);
 
-  // 调整相机位置以便更好地观察动画
+  // 调整相机位置
   _scene.camera.position.set(5, 5, 10);
   _scene.camera.lookAt(0, 0, 0);
+
+  // 移除假天空盒
+  _scene.removeCustomSkyBox()
+
+  // 加载HDR环境贴图
+  const rgbeLoader = new RGBELoader();
+  const hdrTexture = await rgbeLoader.loadAsync('src/assets/model/hdr/memorial.hdr');
+  hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+  _scene.scene.environment = hdrTexture;
+  _scene.scene.background = hdrTexture;
+
+  // 移除默认光源
+  _scene.scene.children = _scene.scene.children.filter(
+    child => !(child instanceof THREE.DirectionalLight)
+  );
+
+  // 添加环境光
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  _scene.scene.add(ambientLight);
 
   // 创建立方体
   createCube();
@@ -23,7 +59,7 @@ onMounted(() => {
   // 开始动画
   startAnimation();
 
-  // 动画循环 - 使用 TWEEN.Group
+  // 动画循环
   _scene.animate(() => {
     tweenGroup.update()
   });
@@ -31,14 +67,16 @@ onMounted(() => {
 
 const createCube = () => {
   const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshPhongMaterial({
-    color: 0x00ff00,
-    transparent: true, // 启用透明度
-    opacity: 1
+  const material = new THREE.MeshStandardMaterial({
+    color: currentProduct.value.color,
+    transparent: true,
+    opacity: 1,
+    envMapIntensity: 1, // 环境贴图强度
+    roughness: 0.5,     // 粗糙度
+    metalness: 0.5      // 金属度
   });
   cube = new THREE.Mesh(geometry, material);
 
-  // 设置初始位置在左侧
   cube.position.set(-5, 0, 0);
   _scene.scene.add(cube);
 };
@@ -97,10 +135,84 @@ const startAnimation = () => {
 onUnmounted(() => {
   _scene.destroy();
 });
+
+// 处理产品切换
+const handleProductChange = (product: typeof products.value[0]) => {
+  currentProduct.value = product;
+  updateMaterialColor(product.color);
+};
 </script>
 
 <template>
-  <canvas ref="materialCanvas" class="canvas"></canvas>
+  <div class="material-container">
+    <canvas ref="materialCanvas" class="canvas"></canvas>
+
+    <!-- 添加产品SKU切换栏 -->
+    <div class="product-controls">
+      <div class="sku-list">
+        <button v-for="product in products" :key="product.id" :class="{ active: currentProduct.id === product.id }"
+          @click="handleProductChange(product)">
+          {{ product.name }}
+          <span class="color-preview" :style="{ backgroundColor: product.color }"></span>
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.material-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.product-controls {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sku-list {
+  display: flex;
+  gap: 10px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.3s ease;
+
+    &.active {
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+
+    &:hover {
+      border-color: #1890ff;
+    }
+  }
+}
+
+.color-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+</style>
