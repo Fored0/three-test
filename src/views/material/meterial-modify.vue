@@ -53,13 +53,10 @@ onMounted(async () => {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   _scene.scene.add(ambientLight);
 
-  // 创建立方体
   createCube();
 
-  // 开始动画
   startAnimation();
 
-  // 动画循环
   _scene.animate(() => {
     tweenGroup.update()
   });
@@ -82,32 +79,32 @@ const createCube = () => {
 };
 
 const startAnimation = () => {
-  // 1. 平移动画（左 -> 右）
+  // 1. 平移
   const moveRight = new TWEEN.Tween(cube.position, tweenGroup)
     .to({ x: 5 }, 2000)
     .easing(TWEEN.Easing.Quadratic.InOut);
 
-  // 2. 旋转动画（360度）
+  // 2. 旋转
   const rotate = new TWEEN.Tween(cube.rotation, tweenGroup)
     .to({ y: Math.PI * 2 }, 2000)
     .easing(TWEEN.Easing.Quadratic.InOut);
 
-  // 3. 放大动画
+  // 3. 放大
   const scaleUp = new TWEEN.Tween(cube.scale, tweenGroup)
     .to({ x: 2, y: 2, z: 2 }, 1000)
     .easing(TWEEN.Easing.Cubic.Out);
 
-  // 4. 缩小动画
+  // 4. 缩小
   const scaleDown = new TWEEN.Tween(cube.scale, tweenGroup)
     .to({ x: 1, y: 1, z: 1 }, 1000)
     .easing(TWEEN.Easing.Cubic.In);
 
-  // 5. 透明度动画（渐隐）
+  // 5. 透明度（渐隐）
   const fadeOut = new TWEEN.Tween(cube.material, tweenGroup)
     .to({ opacity: 0.2 }, 1000)
     .easing(TWEEN.Easing.Quadratic.Out);
 
-  // 6. 透明度动画（渐现）
+  // 6. 透明度（渐现）
   const fadeIn = new TWEEN.Tween(cube.material, tweenGroup)
     .to({ opacity: 1 }, 1000)
     .easing(TWEEN.Easing.Quadratic.In);
@@ -128,7 +125,6 @@ const startAnimation = () => {
     moveRight.start();
   });
 
-  // 开始动画
   moveRight.start();
 };
 

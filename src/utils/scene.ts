@@ -87,6 +87,7 @@ export default class Scene {
 
     // 监听窗口 resize 事件
     window.addEventListener('resize', this.handleWindowResize.bind(this))
+    window.addEventListener('dblclick', this.handleDoubleClick.bind(this))
     return this
   }
 
@@ -98,6 +99,18 @@ export default class Scene {
     // 更新相机投影矩阵
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.renderer.render(this.scene,this.camera)
+  }
+
+  /**
+   * 处理双击
+   */
+  private handleDoubleClick(){
+    if(document.fullscreenElement){
+      document.exitFullscreen()
+    }else{
+      this.renderer.domElement.requestFullscreen()
+    }
   }
 
   /**
@@ -254,6 +267,7 @@ export default class Scene {
    */
   public destroy() {
     window.removeEventListener('resize', this.handleWindowResize.bind(this))
+    window.removeEventListener('dblclick', this.handleDoubleClick.bind(this))
     this.scene.clear()
     this.renderer.dispose()
     this.controls.dispose()
