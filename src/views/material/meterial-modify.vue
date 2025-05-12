@@ -10,7 +10,7 @@ let _scene: Scene;
 let cube: THREE.Mesh;
 const tweenGroup = new TWEEN.Group();
 
-// 添加产品配置数据
+// 产品配置数据
 const products = ref([
   { id: 1, name: '款式1', color: '#00ff00' },
   { id: 2, name: '款式2', color: '#ff0000' },
@@ -19,7 +19,6 @@ const products = ref([
 
 const currentProduct = ref(products.value[0]);
 
-// 更新材质颜色的方法
 const updateMaterialColor = (color: string) => {
   if (cube && cube.material instanceof THREE.MeshStandardMaterial) {
     cube.material.color.setStyle(color);
@@ -116,9 +115,8 @@ const startAnimation = () => {
   scaleDown.chain(fadeOut);
   fadeOut.chain(fadeIn);
 
-  // 设置动画循环
+  // 动画结束后重置位置和旋转
   fadeIn.onComplete(() => {
-    // 重置位置和旋转
     cube.position.set(-5, 0, 0);
     cube.rotation.set(0, 0, 0);
     // 重新开始动画
@@ -132,7 +130,6 @@ onUnmounted(() => {
   _scene.destroy();
 });
 
-// 处理产品切换
 const handleProductChange = (product: typeof products.value[0]) => {
   currentProduct.value = product;
   updateMaterialColor(product.color);
@@ -143,7 +140,7 @@ const handleProductChange = (product: typeof products.value[0]) => {
   <div class="material-container">
     <canvas ref="materialCanvas" class="canvas"></canvas>
 
-    <!-- 添加产品SKU切换栏 -->
+    <!-- 产品SKU切换栏 -->
     <div class="product-controls">
       <div class="sku-list">
         <button v-for="product in products" :key="product.id" :class="{ active: currentProduct.id === product.id }"

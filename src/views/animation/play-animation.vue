@@ -20,9 +20,8 @@ onMounted(async () => {
   if (!animationRef.value) return
   _scene = new Scene(animationRef.value)
 
-  // 调整相机初始位置和朝向
-  _scene.camera.position.set(2, 2, -5) // 设置相机位置
-  _scene.camera.lookAt(0, 1, 0) // 让相机看向模型中心偏上的位置
+  _scene.camera.position.set(2, 2, -5)
+  _scene.camera.lookAt(0, 1, 0)
 
   // 添加相机调试UI
   _scene.addCameraDebugUI()

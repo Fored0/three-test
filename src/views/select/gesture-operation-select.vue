@@ -28,7 +28,6 @@ const addRandomSpheres = () => {
     });
     const sphere = new THREE.Mesh(sphereGeometry, material);
 
-    // 随机位置
     sphere.position.x = (Math.random() - 0.5) * 10;
     sphere.position.y = (Math.random() - 0.5) * 10;
     sphere.position.z = (Math.random() - 0.5) * 10;
@@ -37,7 +36,7 @@ const addRandomSpheres = () => {
   }
 };
 
-// 设置交互
+// 交互
 const setupInteraction = () => {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -110,13 +109,11 @@ const setupInteraction = () => {
     selectedObject = null;
   };
 
-  // 检查是否需要隐藏引导
   const checkHideGuide = () => {
     if (!showGuide.value) return;
     showGuide.value = false;
   };
 
-  // 事件监听
   gestureCanvas.value?.addEventListener('mousedown', (e) => {
     isDragging = true;
     selectObject(e);

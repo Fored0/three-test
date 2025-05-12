@@ -44,7 +44,6 @@ const loadModel = async () => {
       models.push(model);
     }
 
-    // 处理所有加载的模型
     let totalWidth = 0;
     const modelInfos = models.map(model => {
       // 计算模型的包围盒
@@ -65,7 +64,7 @@ const loadModel = async () => {
       const scaledCenter = center.multiplyScalar(scale)
       model.position.sub(scaledCenter)
 
-      // 更新包围盒和尺寸（因为已经缩放）
+      // 更新包围盒和尺寸
       const scaledBox = new THREE.Box3().setFromObject(model);
       const scaledSize = scaledBox.getSize(new THREE.Vector3());
 
@@ -73,7 +72,7 @@ const loadModel = async () => {
       return { model, scaledSize, scale };
     });
 
-    // 计算起始位置（使模型组居中）
+    // 使模型组居中
     let currentX = -totalWidth / 2;
     const spacing = 0.5; // 模型之间的间距
 
@@ -101,7 +100,6 @@ const loadModel = async () => {
         }
       });
 
-      // 将模型添加到场景中
       _scene.scene.add(model);
     });
 

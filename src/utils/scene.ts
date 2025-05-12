@@ -51,7 +51,7 @@ export default class Scene {
     // 创建 WebGL 渲染器并绑定 canvas
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true // 开启抗锯齿
+      antialias: true, // 开启抗锯齿
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -99,16 +99,16 @@ export default class Scene {
     // 更新相机投影矩阵
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.renderer.render(this.scene,this.camera)
+    this.renderer.render(this.scene, this.camera)
   }
 
   /**
    * 处理双击
    */
-  private handleDoubleClick(){
-    if(document.fullscreenElement){
+  private handleDoubleClick() {
+    if (document.fullscreenElement) {
       document.exitFullscreen()
-    }else{
+    } else {
       this.renderer.domElement.requestFullscreen()
     }
   }
@@ -148,15 +148,15 @@ export default class Scene {
    */
   private createSkyBox() {
     // 设置一个天空盒背景图，将相机包裹在内
-    const geometry = new THREE.SphereGeometry(300, 50, 50);
-    const texture = new THREE.TextureLoader().load("./src/assets/model/skybox/skybox.jpg");
+    const geometry = new THREE.SphereGeometry(300, 50, 50)
+    const texture = new THREE.TextureLoader().load('./src/assets/model/skybox/skybox.jpg')
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       side: THREE.DoubleSide, //默认前面可见，设置为背面可见即可
-    });
-    const mesh = new THREE.Mesh(geometry, material);
+    })
+    const mesh = new THREE.Mesh(geometry, material)
     mesh.name = 'custom_sky_box'
-    this.scene.add(mesh);
+    this.scene.add(mesh)
   }
 
   /**
@@ -172,17 +172,13 @@ export default class Scene {
   /**
    * 动画循环
    */
-  // 在 src/utils/scene.ts 中的 Scene 类
   public animate(callback?: () => void) {
     const animate = () => {
       requestAnimationFrame(animate)
-      // 更新控制器
       this.controls.update()
-      // 执行回调
       if (callback) {
         callback()
       }
-      // 确保每帧都渲染
       this.renderer.render(this.scene, this.camera)
     }
     animate()
@@ -215,7 +211,8 @@ export default class Scene {
 
     // 相机视角控制
     const fovFolder = cameraFolder.addFolder('Field of View')
-    fovFolder.add(this.camera, 'fov', 20, 120, 1)
+    fovFolder
+      .add(this.camera, 'fov', 20, 120, 1)
       .name('FOV')
       .onChange(() => {
         this.camera.updateProjectionMatrix()
@@ -223,18 +220,20 @@ export default class Scene {
 
     // 相机近平面和远平面控制
     const clippingFolder = cameraFolder.addFolder('Clipping Planes')
-    clippingFolder.add(this.camera, 'near', 0.1, 50, 0.1)
+    clippingFolder
+      .add(this.camera, 'near', 0.1, 50, 0.1)
       .name('Near')
       .onChange(() => {
         this.camera.updateProjectionMatrix()
       })
-    clippingFolder.add(this.camera, 'far', 100, 5000, 100)
+    clippingFolder
+      .add(this.camera, 'far', 100, 5000, 100)
       .name('Far')
       .onChange(() => {
         this.camera.updateProjectionMatrix()
       })
 
-    // 添加一个按钮来重置相机位置
+    // 重置按钮
     const resetCamera = {
       reset: () => {
         this.camera.position.set(2, 2, 5)
@@ -246,20 +245,9 @@ export default class Scene {
         // 更新控制器
         this.controls.target.set(0, 1, 0)
         this.controls.update()
-      }
+      },
     }
     cameraFolder.add(resetCamera, 'reset').name('Reset Camera')
-
-    // 添加控制器目标点调试
-    const targetFolder = cameraFolder.addFolder('Orbit Controls Target')
-    targetFolder.add(this.controls.target, 'x', -10, 10, 0.1).name('Target X')
-    targetFolder.add(this.controls.target, 'y', -10, 10, 0.1).name('Target Y')
-    targetFolder.add(this.controls.target, 'z', -10, 10, 0.1).name('Target Z')
-    targetFolder.add({
-      updateControls: () => {
-        this.controls.update()
-      }
-    }, 'updateControls').name('Update Controls')
   }
 
   /**

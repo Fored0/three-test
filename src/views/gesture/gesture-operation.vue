@@ -22,10 +22,8 @@ const handleChange = (e: SelectButtonChangeEvent) => {
   if (e.value === "rotate") {
     _scene.controls.dispose();
     const cleanup = useRotate();
-    // 存储清理函数以便后续使用
     _scene.customControlsCleanup = cleanup;
   } else {
-    // 清理自定义控制器
     if (_scene.customControlsCleanup) {
       _scene.customControlsCleanup();
     }
